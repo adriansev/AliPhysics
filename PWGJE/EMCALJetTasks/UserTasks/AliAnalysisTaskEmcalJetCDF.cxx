@@ -103,7 +103,7 @@ Bool_t AliAnalysisTaskEmcalJetCDF::FillHistograms()
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  namespace CDF = NS_AliAnalysisTaskEmcalJetCDF;
+  namespace CDF = PWGJE::EMCALJetTasks::AliAnalysisTaskEmcalJetCDF_NS;
   TString histname = "", groupname = "", fullgroupname = "";
 
   AliJetContainer* jetCont = NULL;
@@ -1538,7 +1538,7 @@ TObject* AliAnalysisTaskEmcalJetCDF::GetHistogram ( const char* histName )
 //########################################################################
 
 //__________________________________________________________________________________________________
-std::vector<Int_t> NS_AliAnalysisTaskEmcalJetCDF::SortTracksPt ( AliVEvent* event )
+std::vector<Int_t> PWGJE::EMCALJetTasks::AliAnalysisTaskEmcalJetCDF_NS::SortTracksPt ( AliVEvent* event )
   {
   // Sorting by p_T (decreasing) event tracks
   Int_t entries = event->GetNumberOfTracks();
@@ -1568,7 +1568,7 @@ std::vector<Int_t> NS_AliAnalysisTaskEmcalJetCDF::SortTracksPt ( AliVEvent* even
   }
 
 //__________________________________________________________________________________________________
-std::vector<Int_t> NS_AliAnalysisTaskEmcalJetCDF::SortTracksPt ( AliParticleContainer* trackscont )
+std::vector<Int_t> PWGJE::EMCALJetTasks::AliAnalysisTaskEmcalJetCDF_NS::SortTracksPt ( AliParticleContainer* trackscont )
   {
   // Sorting by p_T (decreasing) event tracks
   Int_t entries = trackscont->GetNEntries();
@@ -1596,14 +1596,8 @@ std::vector<Int_t> NS_AliAnalysisTaskEmcalJetCDF::SortTracksPt ( AliParticleCont
   return index_sorted_list;
   }
 
-
-/// Add a AliAnalysisTaskEmcalJetCDF task - detailed signature
-/// \param ntracks name of tracks collection
-/// \param nclusters name of clusters collection
-/// \param ncells name of EMCAL cell collection
-/// \param tag tag name of analysis task
-/// \return AliAnalysisTaskEmcalJetCDF* task
-AliAnalysisTaskEmcalJetCDF* NS_AliAnalysisTaskEmcalJetCDF::AddTaskEmcalJetCDF ( const char* ntracks, const char* nclusters, const char* ncells, const char* tag)
+//__________________________________________________________________________________________________
+AliAnalysisTaskEmcalJetCDF* PWGJE::EMCALJetTasks::AliAnalysisTaskEmcalJetCDF_NS::AddTaskEmcalJetCDF ( const char* ntracks, const char* nclusters, const char* ncells, const char* tag)
   {
   // Get the pointer to the existing analysis manager via the static access method.
   //==============================================================================
@@ -1699,18 +1693,10 @@ AliAnalysisTaskEmcalJetCDF* NS_AliAnalysisTaskEmcalJetCDF::AddTaskEmcalJetCDF ( 
   return cdfTask;
   }
 
-  /// Set parameters of a jet container
-  /// \param jetCont AliJetContainer*
-  /// \param jetptmin : min pt of jets in this container (default = 1.)
-  /// \param jetptmax : max pt of jets in this container (default = 500.)
-  /// \param jetareacutperc : cut jets under percentage of area given by algo radius (default = 0.)
-  /// \param leadhadtype : 0 = charged, 1 = neutral, 2 = both (default = 2)
-  /// \param nLeadJets : how many jets are to be considered the leading jet(s) (default = 1)
-  /// \param mintrackpt : min track constituent pt to accept the jet (default = 0.15)
-  /// \param maxtrackpt : max track constituent pt to accept the jet (default = 1000.)
-  void NS_AliAnalysisTaskEmcalJetCDF::jetContSetParams ( AliJetContainer* jetCont, Float_t jetptmin,  Float_t jetptmax, Float_t jetareacutperc, Int_t leadhadtype, Int_t nLeadJets, Float_t mintrackpt, Float_t maxtrackpt)
+//__________________________________________________________________________________________________
+  AliJetContainer* PWGJE::EMCALJetTasks::AliAnalysisTaskEmcalJetCDF_NS::jetContSetParams ( AliJetContainer* jetCont, Float_t jetptmin,  Float_t jetptmax, Float_t jetareacutperc, Int_t leadhadtype, Int_t nLeadJets, Float_t mintrackpt, Float_t maxtrackpt)
     {
-    if (!jetCont) { return; }
+    if (!jetCont) { return NULL; }
     jetCont->SetJetPtCut ( jetptmin );
     jetCont->SetJetPtCutMax ( jetptmax );
     jetCont->SetPercAreaCut ( jetareacutperc );
@@ -1718,21 +1704,11 @@ AliAnalysisTaskEmcalJetCDF* NS_AliAnalysisTaskEmcalJetCDF::AddTaskEmcalJetCDF ( 
     jetCont->SetNLeadingJets(nLeadJets);
     jetCont->SetMinTrackPt(mintrackpt);
     jetCont->SetMaxTrackPt(maxtrackpt);
+    return jetCont;
     }
 
-/**
- * Creates a chain from an list of files
- * Using list of directories is not supported; use find to create a list of files; Ex:
- * find /alice/data/2016/LHC16r/ -path "_*_/000266189/_*_" -path "_*_/pass1_CENT_wSDD/_*_" -name AliAOD.root -printf "file://%p\n"
- * NB! on macos you need gfind that is installed with "brew install findutils"
- * @param filelist Name of the file containing the list of files
- * @param iNumFiles If iNumFiles > 0 only nfiles files are added
- * @param iStartWithFile starting from file 'iStartWithFile' (>= 1).
- * @param cTreeNameArg Tree name for chaining. if "auto" it will be taken as the first tree name from the first file from filelist
- * @param friends Specify the root_file/friend_tree that is assumed to be in the same directory as the each input file; if friend_tree is not specified we will assume the defaults
- * @return TChain*
- */
-TChain* NS_AliAnalysisTaskEmcalJetCDF::CreateChain ( const char* filelist, const char* cTreeNameArg, const char* friends, UInt_t iNumFiles, UInt_t iStartWithFile ) {
+//__________________________________________________________________________________________________
+TChain* PWGJE::EMCALJetTasks::AliAnalysisTaskEmcalJetCDF_NS::CreateChain ( const char* filelist, const char* cTreeNameArg, const char* friends, UInt_t iNumFiles, UInt_t iStartWithFile ) {
 TString sTreeNameArg (cTreeNameArg), treeName;
 
 TFileCollection filecoll ("anachain","File collection for analysis"); // easy manipulation of file collections
@@ -1805,8 +1781,6 @@ if (!sFriends.IsNull()) {
 
 return chain;
 }
-
-
 
 // kate: indent-mode none; indent-width 2; replace-tabs on;
 

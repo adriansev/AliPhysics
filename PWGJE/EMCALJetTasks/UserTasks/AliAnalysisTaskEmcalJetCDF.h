@@ -9,13 +9,17 @@
 /* Copyright(c) 1998-2016, ALICE Experiment at CERN, All rights reserved. *
  * See cxx source for full Copyright notice                               */
 
+#include <TFile.h>
 #include <TChain.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TArrayD.h>
 #include <TVector2.h>
+#include <TString.h>
+#include "THistManager.h"
+#include "AliLog.h"
+#include "AliAnalysisManager.h"
 #include "AliAnalysisTaskEmcalJet.h"
-#include <THistManager.h>
 
 /// \class AliAnalysisTaskEmcalJetCDF
 /// \brief Analysis of jet shapes and FF of all jets and leading jets
@@ -57,7 +61,10 @@ private:
 
 };
 
-namespace NS_AliAnalysisTaskEmcalJetCDF {
+namespace PWGJE {
+namespace EMCALJetTasks {
+namespace AliAnalysisTaskEmcalJetCDF_NS {
+
   /// (pt,index) pair
   typedef std::pair<Double_t, Int_t> ptidx_pair;
 
@@ -70,7 +77,7 @@ namespace NS_AliAnalysisTaskEmcalJetCDF {
   /// Computing the Mag2 of an AliVParticle derived object
   /// \param trk AliVParticle
   /// \return Mag2
-  inline Double_t Mag2 (const AliVParticle& trk) 
+  inline Double_t Mag2 (const AliVParticle& trk)
     { return trk.Px()*trk.Px() + trk.Py()*trk.Py() + trk.Pz()*trk.Pz(); }
 
   /// Computing the Mag of an AliVParticle derived object
@@ -183,7 +190,7 @@ namespace NS_AliAnalysisTaskEmcalJetCDF {
   /// \param mintrackpt : min track constituent pt to accept the jet (default = 0.15)
   /// \param maxtrackpt : max track constituent pt to accept the jet (default = 1000.)
   /// \return
-  void jetContSetParams (
+  AliJetContainer* jetContSetParams (
                           AliJetContainer* jetCont,
                           Float_t jetptmin = 1.,
                           Float_t jetptmax = 500.,
@@ -215,7 +222,86 @@ TChain* CreateChain ( const char* filelist = "filelist.txt",
                       );
 
 
-} // end of NS_AliAnalysisTaskEmcalJetCDF
+
+/// Return true if lhc beggining string have more than 6 characters
+/// @param str char array
+/// @return bool
+inline bool PeriodIsMC (const char* str) {
+   TString period (str);
+   if (!period.IsNull()) {
+     period.ToLower();
+     if ( period.BeginsWith("lhc") && (period.Length() > 6) ) { return true; }
+     }
+   return false;
+ }
+
+
+/// Return the first sub-string beggining with "lhc" from a / delimited char array
+/// \param file_path char array
+/// \return TString period id
+inline TString GetPeriod (const char* file_path) {
+   TString period = "";
+   TString sFile(file_path);
+   sFile.ToLower();
+
+   if (!sFile.IsNull()) {
+     // split string in tokens (libs)
+     TObjArray* tokens_list = sFile.Tokenize("/");
+     TIter next_str(tokens_list);
+     TObjString* token = NULL;
+     while ((token=(TObjString*)next_str())) {
+       TString token_str = token->GetString();
+       if ( token_str.BeginsWith("lhc") ) { period = token_str; break; }
+       }
+     delete tokens_list;
+     }
+   return period;
+ }
+
+
+/// Return the first sub-string beggining with "pass" from a / delimited char array
+/// \param file_path char array
+/// \return TString pass id
+inline TString GetPass ( const char* file_path) {
+   TString pass = "";
+   TString sFile (file_path);
+   sFile.ToLower();
+
+   if (!sFile.IsNull()) {
+     // split string in tokens (libs)
+     TObjArray* tokens_list = sFile.Tokenize("/");
+     TIter next_str(tokens_list);
+     TObjString* token = NULL;
+     while ((token=(TObjString*)next_str())) {
+       TString token_str = token->GetString();
+       if ( token_str.BeginsWith("pass") ) { pass = token_str; break; }
+       }
+     delete tokens_list;
+     }
+
+   return pass;
+ }
+
+
+/// Save AliAnalysisManager to file; return bool fo success
+/// \param file_name char array
+/// \return bool of sucess status
+inline bool SaveManager ( const char* file_name) {
+   AliAnalysisManager* mgr = AliAnalysisManager::GetAnalysisManager();
+   if ( !mgr ) { ::Error ( "SaveManager", "No analysis manager to connect to." ); return kFALSE; }
+
+   TFile pOutFile (file_name,"RECREATE");
+   if ( ! pOutFile.cd() ) { ::Error ( "SaveManager", "Could not use the new created file" ); return kFALSE; }
+   Int_t written_bytes = mgr->Write();
+   pOutFile.Close();
+   if (written_bytes == 0 ) { ::Error ( "SaveManager", "0 bytes written saving manager to file" ); return kFALSE; }
+   return kTRUE;
+   }
+
+} // namespace AliAnalysisTaskEmcalJetCDF_NS
+} // namespace EMCALJetTasks
+} // namespace PWGJE
+
 
 #endif // end of #ifndef ALIANALYSISTASKEMCALJETCDF_H
 
