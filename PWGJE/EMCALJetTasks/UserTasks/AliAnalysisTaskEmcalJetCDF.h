@@ -247,6 +247,7 @@ inline TString GetPeriod (const char* file_path) {
    if (!sFile.IsNull()) {
      // split string in tokens (libs)
      TObjArray* tokens_list = sFile.Tokenize("/");
+     tokens_list->SetOwner(kTRUE);
      TIter next_str(tokens_list);
      TObjString* token = NULL;
      while ((token=(TObjString*)next_str())) {
@@ -270,6 +271,7 @@ inline TString GetPass ( const char* file_path) {
    if (!sFile.IsNull()) {
      // split string in tokens (libs)
      TObjArray* tokens_list = sFile.Tokenize("/");
+     tokens_list->SetOwner(kTRUE);
      TIter next_str(tokens_list);
      TObjString* token = NULL;
      while ((token=(TObjString*)next_str())) {
@@ -281,6 +283,23 @@ inline TString GetPass ( const char* file_path) {
 
    return pass;
  }
+
+
+/// Return the last sub-string from a / delimited char array
+/// \param file_path char array
+/// \return TString file name
+inline TString GetFileFromPath ( const char* file_path = "" ) {
+TString file (file_path);
+TString file_name ("");
+TObjArray* token_list = file.Tokenize("/");
+token_list->SetOwner(kTRUE);
+
+if ( token_list->GetEntries() > 0 )
+  { file_name = ((TObjString*)token_list->At(token_list->GetLast()))->GetString(); }
+
+delete token_list;
+return file_name;
+}
 
 
 /// Save AliAnalysisManager to file; return bool fo success
