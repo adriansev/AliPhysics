@@ -466,8 +466,7 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
   TString histname = "", histtitle = "", groupname = "", fullgroupname = "";
   AliJetContainer* jetCont = 0;
   TIter next(&fJetCollArray);
-  while ((jetCont = static_cast<AliJetContainer*>(next())))
-    {
+  while ((jetCont = static_cast<AliJetContainer*>(next()))) {
     groupname = jetCont->GetName();
 
     Double_t jet_pt_min = jetCont->GetMinPt();
@@ -480,8 +479,7 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
     groupname = groupname + "_" + "ptbin" + "_" + jetstrmin + "_" + jetstrmax;
 
     fHistManager.CreateHistoGroup(groupname);
-    for (Int_t cent = 0; cent < fNcentBins; cent++)
-      {
+    for (Int_t cent = 0; cent < fNcentBins; cent++) {
       //=====================================================================================
       Int_t h1_nbin = 200; Double_t h1_binwidth = 1; Double_t h1_low = 0;
       Double_t h1_high = h1_low + h1_binwidth * h1_nbin; // 1GeV/bin
@@ -673,19 +671,7 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
       fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
 
       //########################################################
-      histname = TString::Format("%s/histo_Rjt_n70_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
-
-      histname = TString::Format("%s/histo_Rjt_n75_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
-
       histname = TString::Format("%s/histo_Rjt_n80_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
-
-      histname = TString::Format("%s/histo_Rjt_n85_%d", groupname.Data(), cent);
       histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
       fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
 
@@ -694,19 +680,7 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
       fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
 
       //########################################################
-      histname = TString::Format("%s/histo_Rjt_pt70_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
-
-      histname = TString::Format("%s/histo_Rjt_pt75_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
-
       histname = TString::Format("%s/histo_Rjt_pt80_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
-
-      histname = TString::Format("%s/histo_Rjt_pt85_%d", groupname.Data(), cent);
       histtitle = TString::Format("%s ;dR;j_{T} (GeV/c);", histname.Data()); // j_T track vs dR
       fHistManager.CreateTH2(histname, histtitle, h_Rjt_xnbin, h_Rjt_xlow, h_Rjt_xhigh, h_Rjt_ynbin, h_Rjt_ylow, h_Rjt_yhigh);
 
@@ -725,19 +699,7 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
       fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
 
       //########################################################
-      histname = TString::Format("%s/histo_jt_n70_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
-
-      histname = TString::Format("%s/histo_jt_n75_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
-
       histname = TString::Format("%s/histo_jt_n80_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
-
-      histname = TString::Format("%s/histo_jt_n85_%d", groupname.Data(), cent);
       histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
       fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
 
@@ -746,19 +708,7 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
       fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
 
       //########################################################
-      histname = TString::Format("%s/histo_jt_pt70_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
-
-      histname = TString::Format("%s/histo_jt_pt75_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
-
       histname = TString::Format("%s/histo_jt_pt80_%d", groupname.Data(), cent);
-      histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
-      fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
-
-      histname = TString::Format("%s/histo_jt_pt85_%d", groupname.Data(), cent);
       histtitle = TString::Format("%s ;j_{T} (GeV/c);1/N_{jets} dN/dj_{T};", histname.Data()); // j_T track vs dR
       fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
 
@@ -767,10 +717,9 @@ void AliAnalysisTaskEmcalJetCDF::UserCreateOutputObjects()
       fHistManager.CreateTH1(histname, histtitle, h_jt_xnbin, h_jt_xlow, h_jt_xhigh);
       //########################################################
 
-      }
-      //end of loop over fNcentBins
-    }
-    // end of loop over jet containers
+      } //end of loop over fNcentBins
+    }// end of loop over jet containers
+
 
   // =========== Switch on Sumw2 for all histos ===========
   TH1::SetDefaultSumw2(kTRUE);
