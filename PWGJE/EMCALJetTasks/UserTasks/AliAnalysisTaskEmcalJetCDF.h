@@ -20,6 +20,7 @@
 #include "AliLog.h"
 #include "AliAnalysisManager.h"
 #include "AliAnalysisTaskEmcalJet.h"
+#include "AliEmcalEmbeddingQA.h"
 
 /// \class AliAnalysisTaskEmcalJetCDF
 /// \brief Analysis of jet shapes and FF of all jets and leading jets
@@ -36,8 +37,6 @@ public:
     void                        UserCreateOutputObjects();
     void                        Terminate ( Option_t *option );
 
-    THistManager                fHistManager   ;///< Histogram manager
-
 protected:
     void                        ExecOnce();
     Bool_t                      Run() ;
@@ -50,6 +49,22 @@ protected:
     /// \param histName Name of the histogram
     /// \return TObject*
     TObject* GetHistogram ( const char* histName );
+
+    Bool_t              IsEventSelected();
+
+    AliEmcalEmbeddingQA         fEmbeddingQA;            //!<! QA hists for embedding (will only be added if embedding)
+
+    // Event selection
+    Bool_t                      fUseAliEventCuts;                     ///< Flag to use AliEventCuts (otherwise AliAnalysisTaskEmcal will be used)
+    AliEventCuts                fEventCuts;                           ///< event selection utility
+    TList                      *fEventCutList;                        //!<! Output list for event cut histograms
+    Bool_t                      fUseManualEventCuts;                  ///< Flag to use manual event cuts
+
+    // MC options
+    AliMCParticleContainer*     fGeneratorLevel;                      //!<! generator level container
+
+    THistManager                fHistManager   ;///< Histogram manager
+
 
 private:
     AliAnalysisTaskEmcalJetCDF ( const AliAnalysisTaskEmcalJetCDF& );           // not implemented
@@ -177,6 +192,7 @@ namespace AliAnalysisTaskEmcalJetCDF_NS {
                                 const char* ntracks    = "usedefault",
                                 const char* nclusters  = "usedefault",
                                 const char* ncells     = "usedefault",
+                                const char* ntracks_mc = "",
                                 const char* tag        = "CDF"
                               );
 
@@ -316,6 +332,14 @@ inline bool SaveManager ( const char* file_name) {
    if (written_bytes == 0 ) { ::Error ( "SaveManager", "0 bytes written saving manager to file" ); return kFALSE; }
    return kTRUE;
    }
+
+/// Get pt of jet with background substracted
+/// \param AliEmcalJet* jet
+/// \param Double_t rho
+/// \return jet pt
+inline Double_t JetPtRho(const AliEmcalJet* jet, Double_t rho) {
+  return jet->Pt() - jet->Area() * rho;
+  }
 
 } // namespace AliAnalysisTaskEmcalJetCDF_NS
 } // namespace EMCALJetTasks
