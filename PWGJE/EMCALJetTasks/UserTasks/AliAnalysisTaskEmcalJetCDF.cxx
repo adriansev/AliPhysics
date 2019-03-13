@@ -112,12 +112,12 @@ Bool_t AliAnalysisTaskEmcalJetCDF::FillHistograms()
   while ( (jetCont = static_cast<AliJetContainer*>(next())) ) {
     //##### EARLY VALIDITY CHECKS - BAIL OUT FAST
     // get particles connected to jets
-    AliParticleContainer* fTracksCont = jetCont->GetParticleContainer();
+    AliParticleContainer* fTracksCont = dynamic_cast<AliParticleContainer*>(jetCont->GetParticleContainer());
     if (!fTracksCont) { std::cout << "*********   JET CONTAINER WITHOUT TRACKS CONTAINER   *********" << std::endl; continue; }
     TClonesArray* fTracksContArray = fTracksCont->GetArray();
 
     // Number of Jets found in event - accepted cuts applied by JetContainer
-    Int_t fNJets_accepted = jetCont->GetNJets();
+    Int_t fNJets_accepted = jetCont->GetNAcceptedJets();
 
     // Multiplicity in event - accepted tracks in tracks container
     Int_t fNaccPart = fTracksCont->GetNAcceptedParticles();
@@ -343,7 +343,6 @@ Bool_t AliAnalysisTaskEmcalJetCDF::FillHistograms()
       // parsing all jet tracks
       for (std::size_t i = 0; i < jet_npart; i++ ) {
         track_idx = jet_sorted_idxvec.at (i);
-        //track = dynamic_cast<AliVParticle*>(fTracksContArray->At( track_idx ));
         AliVParticle* track = jet->TrackAt ( track_idx, fTracksContArray );
         if (!track) { std::cout << "Parsing tracks of jets :: track not defined but it should!!!" << std::endl; continue; }
 
