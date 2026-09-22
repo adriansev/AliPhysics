@@ -152,6 +152,7 @@ class AliAnalysisTaskConversionQA : public AliAnalysisTaskSE{
     Float_t                     fNegativeNSigmaTPCRaw;      // raw negative-track electron TPC response
     Float_t                     fPositiveNSigmaTPCUsed;     // response used by the task after optional postcalibration
     Float_t                     fNegativeNSigmaTPCUsed;     // response used by the task after optional postcalibration
+
     Bool_t                      fIsMC;                      //
     Int_t                       fnGammaCandidates;          //
     Int_t*                      fMCStackPos;                //[fnGammaCandidates]
