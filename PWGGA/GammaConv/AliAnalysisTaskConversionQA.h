@@ -138,7 +138,7 @@ class AliAnalysisTaskConversionQA : public AliAnalysisTaskSE{
     TVectorF                    fGammaConvCoord;            //
     TVectorF                    fDaughterProp;              //
     UInt_t                      fKind;                      //
-    Float_t                     fMCPhotonPt;                // true common-mother photon transverse momentum
+    Float_t                     fMCMotherPt;                // common-mother transverse momentum
     Float_t                     fMCConversionR;             // true daughter production radius
     Float_t                     fMCConversionZ;             // true daughter production z coordinate
     Int_t                       fMCPositivePdg;              // positive-daughter PDG code

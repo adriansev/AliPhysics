@@ -122,7 +122,7 @@ AliAnalysisTaskConversionQA::AliAnalysisTaskConversionQA() : AliAnalysisTaskSE()
   fGammaConvCoord(5),
   fDaughterProp(24),
   fKind(0),
-  fMCPhotonPt(-999.f),
+  fMCMotherPt(-999.f),
   fMCConversionR(-999.f),
   fMCConversionZ(-999.f),
   fMCPositivePdg(0),
@@ -229,7 +229,7 @@ AliAnalysisTaskConversionQA::AliAnalysisTaskConversionQA(const char *name) : Ali
   fGammaConvCoord(5),
   fDaughterProp(24),
   fKind(0),
-  fMCPhotonPt(-999.f),
+  fMCMotherPt(-999.f),
   fMCConversionR(-999.f),
   fMCConversionZ(-999.f),
   fMCPositivePdg(0),
@@ -458,7 +458,7 @@ void AliAnalysisTaskConversionQA::UserCreateOutputObjects()
     fTreeQA->Branch("chi2ndf",&fGammaChi2NDF,"fGammaChi2NDF/F");
     if (fIsMC) {
       fTreeQA->Branch("kind",&fKind,"fKind/b");
-      fTreeQA->Branch("mcPhotonPt",&fMCPhotonPt,"fMCPhotonPt/F");
+      fTreeQA->Branch("mcMotherPt",&fMCMotherPt,"fMCMotherPt/F");
       fTreeQA->Branch("mcConversionR",&fMCConversionR,"fMCConversionR/F");
       fTreeQA->Branch("mcConversionZ",&fMCConversionZ,"fMCConversionZ/F");
       fTreeQA->Branch("mcPositivePdg",&fMCPositivePdg,"fMCPositivePdg/I");
@@ -747,7 +747,7 @@ void AliAnalysisTaskConversionQA::ProcessQATree(AliAODConversionPhoton *gamma){
 //________________________________________________________________________
 void AliAnalysisTaskConversionQA::ResetMCTruthInfo()
 {
-  fMCPhotonPt = -999.f;
+  fMCMotherPt = -999.f;
   fMCConversionR = -999.f;
   fMCConversionZ = -999.f;
   fMCPositivePdg = 0;
@@ -771,12 +771,6 @@ void AliAnalysisTaskConversionQA::FillMCTruthInfo(AliAODConversionPhoton *gamma)
 
   fMCTreeWeight = (ffillTree > 1.0 && gamma->GetPhotonPt() < fTreeHighPt) ? ffillTree : 1.f;
 
-  const AliVVertex* primaryVertex = fMCEvent->GetPrimaryVertex();
-  if (!primaryVertex) return;
-  const Double_t primaryX = primaryVertex->GetX();
-  const Double_t primaryY = primaryVertex->GetY();
-  const Double_t primaryZ = primaryVertex->GetZ();
-
   if (fInputEvent->IsA() == AliAODEvent::Class()) {
     TClonesArray* particles = dynamic_cast<TClonesArray*>(fInputEvent->FindListObject(AliAODMCParticle::StdBranchName()));
     if (!particles) return;
@@ -797,10 +791,15 @@ void AliAnalysisTaskConversionQA::FillMCTruthInfo(AliAODConversionPhoton *gamma)
     AliAODMCParticle* mother = static_cast<AliAODMCParticle*>(particles->At(motherLabel));
     if (!mother) return;
     fMCMotherPdg = mother->GetPdgCode();
-    fMCPhotonPt = mother->Pt();
-    fMCPrimaryStatus = fEventCuts->IsConversionPrimaryAOD(fInputEvent, mother, primaryX, primaryY, primaryZ) ? 1 : 0;
-    const Int_t headerStatus = fEventCuts->IsParticleFromBGEvent(motherLabel, fMCEvent, fInputEvent);
-    if (headerStatus >= 0 && headerStatus < 255) fMCHeaderStatus = static_cast<UChar_t>(headerStatus);
+    fMCMotherPt = mother->Pt();
+    const AliVVertex* primaryVertex = fMCEvent->GetPrimaryVertex();
+    if (primaryVertex) {
+      fMCPrimaryStatus = fEventCuts->IsConversionPrimaryAOD(fInputEvent, mother, primaryVertex->GetX(), primaryVertex->GetY(), primaryVertex->GetZ()) ? 1 : 0;
+    }
+    if (fEventCuts->GetSignalRejection() != 0) {
+      const Int_t headerStatus = fEventCuts->IsParticleFromBGEvent(motherLabel, fMCEvent, fInputEvent);
+      if (headerStatus >= 0 && headerStatus < 255) fMCHeaderStatus = static_cast<UChar_t>(headerStatus);
+    }
 
     const Int_t sourceLabel = mother->GetMother();
     if (sourceLabel >= 0 && sourceLabel < particles->GetEntriesFast()) {
@@ -823,10 +822,15 @@ void AliAnalysisTaskConversionQA::FillMCTruthInfo(AliAODConversionPhoton *gamma)
   AliMCParticle* mother = static_cast<AliMCParticle*>(fMCEvent->GetTrack(motherLabel));
   if (!mother) return;
   fMCMotherPdg = mother->PdgCode();
-  fMCPhotonPt = mother->Pt();
-  fMCPrimaryStatus = fEventCuts->IsConversionPrimaryESD(fMCEvent, motherLabel, primaryX, primaryY, primaryZ) ? 1 : 0;
-  const Int_t headerStatus = fEventCuts->IsParticleFromBGEvent(motherLabel, fMCEvent, fInputEvent);
-  if (headerStatus >= 0 && headerStatus < 255) fMCHeaderStatus = static_cast<UChar_t>(headerStatus);
+  fMCMotherPt = mother->Pt();
+  const AliVVertex* primaryVertex = fMCEvent->GetPrimaryVertex();
+  if (primaryVertex) {
+    fMCPrimaryStatus = fEventCuts->IsConversionPrimaryESD(fMCEvent, motherLabel, primaryVertex->GetX(), primaryVertex->GetY(), primaryVertex->GetZ()) ? 1 : 0;
+  }
+  if (fEventCuts->GetSignalRejection() != 0) {
+    const Int_t headerStatus = fEventCuts->IsParticleFromBGEvent(motherLabel, fMCEvent, fInputEvent);
+    if (headerStatus >= 0 && headerStatus < 255) fMCHeaderStatus = static_cast<UChar_t>(headerStatus);
+  }
 
   const Int_t sourceLabel = mother->GetMother();
   if (sourceLabel >= 0 && sourceLabel < fMCEvent->GetNumberOfTracks()) {
